@@ -39,8 +39,6 @@ public class Account {
     }
 
     public Snapshot saveState(LinkedList<Snapshot> states) {
-        // balance надо передавать не ссылкой на объект, а значениями!
-        // перебор по одной мапе и запись в другую.
         HashMap<Currency, Integer> curBalance = new HashMap<>();
 
         for (Currency currency : balance.keySet()) {
@@ -61,9 +59,6 @@ public class Account {
     }
 
     public void undo() {
-//        System.out.println("size = " + hisrotyStates.size());
-//        System.out.println("last = " + hisrotyStates.getLast());
-
         if (hisrotyStates.size() <= 1) throw new IllegalArgumentException("Отмена обновления невозможна. Данный объект не имеет обновлений!");
 
         hisrotyStates.removeLast();
