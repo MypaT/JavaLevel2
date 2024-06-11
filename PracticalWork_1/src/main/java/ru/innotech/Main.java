@@ -34,10 +34,10 @@ public class Main {
         for (int i = 0; i < 4; i++) {
             acc.undo();
             System.out.println(acc);
-            printHisroty(acc);
+            //printHisroty(acc);
         }
     }
-
+/*
     public static void printManualHisroty(Account account) {
 //        System.out.println("acc = " + account);
         System.out.println("   ");
@@ -60,4 +60,5 @@ public class Main {
         System.out.println("-========================-");
         System.out.println("   ");
     }
+ */
 }

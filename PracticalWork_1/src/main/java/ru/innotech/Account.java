@@ -4,8 +4,11 @@ import lombok.Getter;
 import lombok.ToString;
 import lombok.EqualsAndHashCode;
 
-import java.util.HashMap;
-import java.util.LinkedList;
+import java.util.*;
+
+class Manager {
+    List<Save> saves;
+}
 
 @Getter
 @EqualsAndHashCode
@@ -13,59 +16,68 @@ import java.util.LinkedList;
 public class Account {
     private String name;
     private HashMap<Currency, Integer> balance = new HashMap<>();
-    private LinkedList<Snapshot> hisrotyStates = new LinkedList<>();
-    private LinkedList<Snapshot> manualHisrotyStates = new LinkedList<>();
+    private Deque<Command> saves = new ArrayDeque<>();
 
     public Account(String name) {
-        this.name = checkName(name);
-        saveState(hisrotyStates);
+        setName(name);
     }
 
     public void setName(String name) {
+        String curAcc = Account.this.name;
+        saves.push(() -> Account.this.name = curAcc);
         this.name = checkName(name);
-        saveHisroty();
+    }
+
+    public HashMap<Currency, Integer> getBalance() {
+        return new HashMap<>(balance);
     }
 
     public void setCurrencyBalance(Currency currency, Integer sum) {
+        if (currency == null) throw new IllegalArgumentException("Ошибка! Введена пустая валюта");
         if (sum < 0) throw new IllegalArgumentException("Ошибка! Введена отрицательная сумма");
-
+        if (balance.containsKey(currency)) {
+            int curSum = balance.get(currency);
+            saves.push(() -> balance.put(currency, curSum));
+        } else {
+            saves.push(() -> balance.remove(currency));
+        }
         balance.put(currency, sum);
-        saveHisroty();
     }
 
     private String checkName (String name) {
-        if (name == null || name.trim().isEmpty()) throw new IllegalArgumentException("Ошибка! Введено пустое имя");
+        if (name == null || name.isBlank()) throw new IllegalArgumentException("Ошибка! Введено пустое имя");
         return name;
     }
 
-    public Snapshot saveState(LinkedList<Snapshot> states) {
-        HashMap<Currency, Integer> curBalance = new HashMap<>();
-
-        for (Currency currency : balance.keySet()) {
-            curBalance.put(currency, balance.get(currency));
-        }
-
-        Snapshot snapshot = new Snapshot(name, curBalance);
-        states.add(snapshot);
-        return snapshot;
-    }
-
-    private void saveHisroty() {
-        saveState(hisrotyStates);
-    }
-
-    public Snapshot saveManualHisroty() {
-        return saveState(manualHisrotyStates);
+    public Save save() {
+        return new AccountSave();
     }
 
     public void undo() {
-        if (hisrotyStates.size() <= 1) throw new IllegalArgumentException("Отмена обновления невозможна. Данный объект не имеет обновлений!");
+        if (saves.size() <= 1) throw new IllegalArgumentException("Отмена обновления невозможна. Данный объект не имеет обновлений!");
+        saves.pop().make();
+    }
 
-        hisrotyStates.removeLast();
 
-        Snapshot last = hisrotyStates.getLast();
+    private class AccountSave implements Save {
+        private String name = Account.this.name;
+        private final Map<Currency, Integer> balance = new HashMap<>(Account.this.balance);
 
-        name = last.getName();
-        balance = last.getBalance();
+        @Override
+        public String getName() {
+            return name;
+        }
+
+        @Override
+        public Map<Currency, Integer> getBalance() {
+            return new HashMap<>(balance);
+        }
+
+        @Override
+        public void createSave() {
+            Account.this.name = name;
+            Account.this.balance.clear();
+            Account.this.balance.putAll(balance);
+        }
     }
 }

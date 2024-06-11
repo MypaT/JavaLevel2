@@ -91,33 +91,17 @@ public class Tests {
     }
 
     @Test
-    public void createSnapshot () {
-        String name = "Vasya";
-        Currency currencyRUB = Currency.RUB;
-        int sum = 100;
-        HashMap<Currency, Integer> balance = new HashMap<>();
-        balance.put(currencyRUB, sum);
-        Snapshot snapshot = new Snapshot(name, balance);
-
-        if (!snapshot.getName().equals(name) || snapshot.getBalance().size() != 1 ||
-                !snapshot.getBalance().containsKey(currencyRUB) || !snapshot.getBalance().get(currencyRUB).equals(sum))
-            throw new RuntimeException("Test error!");
-    }
-
-    @Test
-    public void saveManualHistory () {
+    public void save () {
         String name = "Vasya";
         Currency currencyRUB = Currency.RUB;
         int sum = 100;
         Account account = new Account(name);
         account.setCurrencyBalance(currencyRUB, sum);
-
-        Snapshot snapshot = account.saveManualHisroty();
-
+        Save save = account.save();
         account.setCurrencyBalance(currencyRUB, 200);
 
-        if (!snapshot.getName().equals(name) || snapshot.getBalance().size() != 1 ||
-                !snapshot.getBalance().containsKey(currencyRUB) || !snapshot.getBalance().get(currencyRUB).equals(sum))
+        if (!save.getName().equals(name) || save.getBalance().size() != 1 ||
+                !save.getBalance().containsKey(currencyRUB) || !save.getBalance().get(currencyRUB).equals(sum))
             throw new RuntimeException("Test error!");
     }
 }
