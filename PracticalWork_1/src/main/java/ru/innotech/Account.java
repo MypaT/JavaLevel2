@@ -10,11 +10,11 @@ class Manager {
     List<Save> saves;
 }
 
-@Getter
+
 @EqualsAndHashCode
 @ToString
 public class Account {
-    private String name;
+    @Getter private String name;
     private HashMap<Currency, Integer> balance = new HashMap<>();
     private Deque<Command> saves = new ArrayDeque<>();
 
